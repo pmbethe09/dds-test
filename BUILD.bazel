@@ -1,0 +1,5 @@
+cc_binary(
+    name = "test_dds",
+    srcs = ["test_dds.cpp"],
+    deps = ["@com_github_dds_bridge_dds//:dds"],
+)

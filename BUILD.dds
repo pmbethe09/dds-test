@@ -1,0 +1,13 @@
+# Import of DoubleDummySolver from github
+cc_library(
+    name = "dds",
+    srcs = glob([
+        "src/*.cpp",
+        "src/*.h",
+        "include/portab.h",
+    ]),
+    hdrs = glob(["include/dll.h"]),
+    copts = ["-Wno-all"],
+    linkopts = ["-lm"],
+    visibility = ["//visibility:public"],
+)
