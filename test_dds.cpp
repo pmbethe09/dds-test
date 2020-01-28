@@ -1,9 +1,9 @@
 
+#include <string.h>
+
 #include <iostream>
 
 #include "include/dll.h"
-
-#include <string.h>
 
 static void PrintDDSDebugInfo(const struct futureTricks &fut) {
   printf("nodes=%d cards=%d\n", fut.nodes, fut.cards);
@@ -12,6 +12,18 @@ static void PrintDDSDebugInfo(const struct futureTricks &fut) {
            fut.rank[i], fut.equals[i], fut.score[i]);
   }
 }
+
+enum class Suit {
+  SPADES = 0,
+  HEARTS = 1,
+  DIAMONDS = 2,
+  CLUBS = 3,
+  NOTRUMP = 4
+};
+
+enum class Compass { NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3 };
+
+int rank(char c);
 
 int main(int argc, char **argv) {
   const int target = -1, solutions = 3, mode = 1;
@@ -24,11 +36,14 @@ int main(int argc, char **argv) {
   memset(&fut, 0, sizeof(futureTricks));
 
   strcpy(dds_deal.remainCards, "N:KJ..5. QT...T 5..A.9 97.9..");
-  dds_deal.first = 2;
-  dds_deal.trump = 4;
+  // dds_deal.currentTrickSuit[0] = static_cast<int>(Suit::DIAMONDS);
+  // dds_deal.currentTrickRank[0] = rank('A');
+
+  dds_deal.first = static_cast<int>(Compass::SOUTH);
+  dds_deal.trump = static_cast<int>(Suit::NOTRUMP);
 
   int rc = SolveBoardPBN(dds_deal, target, solutions, mode, &fut,
-                   /* threadIndex */ 0);
+                         /* threadIndex */ 0);
   if (rc == RETURN_NO_FAULT) {
     PrintDDSDebugInfo(fut);
     return 0;
@@ -37,4 +52,29 @@ int main(int argc, char **argv) {
   ErrorMessage(rc, line);
   std::cerr << line << std::endl;
   return 1;
+}
+
+int rank(char c) {
+  int r = c - '0';
+  if (r >= 2 && r <= 9) {
+    return 1 << r;
+  }
+  switch (c) {
+    case 't':
+    case 'T':
+      return 1 << 10;
+    case 'j':
+    case 'J':
+      return 1 << 11;
+    case 'q':
+    case 'Q':
+      return 1 << 12;
+    case 'k':
+    case 'K':
+      return 1 << 13;
+    case 'A':
+    case 'a':
+      return 1 << 14;
+  }
+  return 0;
 }
