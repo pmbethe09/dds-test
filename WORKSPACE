@@ -3,9 +3,11 @@ workspace(name = "com_github_pmbethe09_dds_test")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "new_git_repository")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-local_repository(
+new_git_repository(
     name = "com_github_dds_bridge_dds",
-    path = "/home/pbethe/School/dds",
+    build_file = "//:BUILD.dds",
+    remote = "https://github.com/dds-bridge/dds",
+    tag = "v2.8.4",
 )
 
 http_archive(
