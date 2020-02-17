@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "gtest/gtest.h"
 #include "include/dll.h"
 
 static void PrintDDSDebugInfo(const struct futureTricks &fut) {
@@ -23,38 +24,8 @@ enum class Suit {
 
 enum class Compass { NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3 };
 
-int rank(char c);
 
-int main(int argc, char **argv) {
-  const int target = -1, solutions = 3, mode = 1;
-
-  SetMaxThreads(0);
-
-  struct dealPBN dds_deal;
-  struct futureTricks fut;
-  memset(&dds_deal, 0, sizeof(deal));
-  memset(&fut, 0, sizeof(futureTricks));
-
-  strcpy(dds_deal.remainCards, "N:KJ..5. QT...T 5..A.9 97.9..");
-  // dds_deal.currentTrickSuit[0] = static_cast<int>(Suit::DIAMONDS);
-  // dds_deal.currentTrickRank[0] = rank('A');
-
-  dds_deal.first = static_cast<int>(Compass::SOUTH);
-  dds_deal.trump = static_cast<int>(Suit::NOTRUMP);
-
-  int rc = SolveBoardPBN(dds_deal, target, solutions, mode, &fut,
-                         /* threadIndex */ 0);
-  if (rc == RETURN_NO_FAULT) {
-    PrintDDSDebugInfo(fut);
-    return 0;
-  }
-  char line[80];
-  ErrorMessage(rc, line);
-  std::cerr << line << std::endl;
-  return 1;
-}
-
-int rank(char c) {
+static int rank(char c) {
   int r = c - '0';
   if (r >= 2 && r <= 9) {
     return 1 << r;
@@ -77,4 +48,32 @@ int rank(char c) {
       return 1 << 14;
   }
   return 0;
+}
+
+TEST(TestDDS, Solve) {
+  const int target = -1, solutions = 3, mode = 1;
+
+  SetMaxThreads(0);
+
+  struct dealPBN dds_deal;
+  struct futureTricks fut;
+  memset(&dds_deal, 0, sizeof(deal));
+  memset(&fut, 0, sizeof(futureTricks));
+
+  strcpy(dds_deal.remainCards, "N:KJ..5. QT...T 5..A.9 97.9..");
+  // dds_deal.currentTrickSuit[0] = static_cast<int>(Suit::DIAMONDS);
+  // dds_deal.currentTrickRank[0] = rank('A');
+
+  dds_deal.first = static_cast<int>(Compass::SOUTH);
+  dds_deal.trump = static_cast<int>(Suit::NOTRUMP);
+
+  int rc = SolveBoardPBN(dds_deal, target, solutions, mode, &fut,
+                         /* threadIndex */ 0);
+  if (rc == RETURN_NO_FAULT) {
+    PrintDDSDebugInfo(fut);
+    return;
+  }
+  char line[80];
+  ErrorMessage(rc, line);
+ EXPECT_EQ(RETURN_NO_FAULT, rc) << line;
 }
