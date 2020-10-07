@@ -23,7 +23,7 @@ enum class Suit {
 
 enum class Compass { NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3 };
 
-int rank(char c);
+static int rank(char c);
 
 int main(int argc, char **argv) {
   const int target = -1, solutions = 3, mode = 1;
@@ -35,9 +35,10 @@ int main(int argc, char **argv) {
   memset(&dds_deal, 0, sizeof(deal));
   memset(&fut, 0, sizeof(futureTricks));
 
+  // DA removed from S holding
   strcpy(dds_deal.remainCards, "N:KJ..5. QT...T 5..A.9 97.9..");
-  // dds_deal.currentTrickSuit[0] = static_cast<int>(Suit::DIAMONDS);
-  // dds_deal.currentTrickRank[0] = rank('A');
+  dds_deal.currentTrickSuit[0] = static_cast<int>(Suit::DIAMONDS);
+  dds_deal.currentTrickRank[0] = rank('A');
 
   dds_deal.first = static_cast<int>(Compass::SOUTH);
   dds_deal.trump = static_cast<int>(Suit::NOTRUMP);
@@ -54,27 +55,27 @@ int main(int argc, char **argv) {
   return 1;
 }
 
-int rank(char c) {
+static int rank(char c) {
   int r = c - '0';
   if (r >= 2 && r <= 9) {
-    return 1 << r;
+    return r;
   }
   switch (c) {
     case 't':
     case 'T':
-      return 1 << 10;
+      return 10;
     case 'j':
     case 'J':
-      return 1 << 11;
+      return 11;
     case 'q':
     case 'Q':
-      return 1 << 12;
+      return 12;
     case 'k':
     case 'K':
-      return 1 << 13;
+      return 13;
     case 'A':
     case 'a':
-      return 1 << 14;
+      return 14;
   }
   return 0;
 }
