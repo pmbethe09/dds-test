@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "include/dll.h"
+#include "gtest/gtest.h"
 
 static void PrintDDSDebugInfo(const struct futureTricks &fut) {
   printf("nodes=%d cards=%d\n", fut.nodes, fut.cards);
@@ -25,7 +26,7 @@ enum class Compass { NORTH = 0, EAST = 1, SOUTH = 2, WEST = 3 };
 
 static int rank(char c);
 
-int main(int argc, char **argv) {
+TEST(TestDDS, Solve) {
   const int target = -1, solutions = 3, mode = 1;
 
   SetMaxThreads(0);
@@ -36,23 +37,23 @@ int main(int argc, char **argv) {
   memset(&fut, 0, sizeof(futureTricks));
 
   // DA removed from S holding
-  strcpy(dds_deal.remainCards, "N:KJ..5. QT...T 5..A.9 97.9..");
+  strcpy(dds_deal.remainCards, "N:KJ..5. QT...T 5...9 97.9..");
   dds_deal.currentTrickSuit[0] = static_cast<int>(Suit::DIAMONDS);
-  dds_deal.currentTrickRank[0] = rank('A');
+  dds_deal.currentTrickRank[0] = 14; // rank('A');
 
   dds_deal.first = static_cast<int>(Compass::SOUTH);
   dds_deal.trump = static_cast<int>(Suit::NOTRUMP);
 
   int rc = SolveBoardPBN(dds_deal, target, solutions, mode, &fut,
                          /* threadIndex */ 0);
-  if (rc == RETURN_NO_FAULT) {
-    PrintDDSDebugInfo(fut);
-    return 0;
-  }
   char line[80];
   ErrorMessage(rc, line);
-  std::cerr << line << std::endl;
-  return 1;
+  EXPECT_EQ(RETURN_NO_FAULT, rc) << line;
+  if (rc == RETURN_NO_FAULT) {
+    PrintDDSDebugInfo(fut);
+  }
+  EXPECT_EQ(0, fut.score[0]);
+  EXPECT_EQ(0, fut.score[1]);
 }
 
 static int rank(char c) {
